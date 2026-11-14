@@ -1,11 +1,32 @@
 use serde::{Deserialize, Serialize};
 
+/// Physical point with f32 coordinates (backward compatible).
+///
+/// For new code, consider using `Mpt` coordinates for deterministic layout.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct PhysicalPoint {
     pub x: f32, // in DTP points (pt)
     pub y: f32,
 }
 
+impl PhysicalPoint {
+    /// Create a PhysicalPoint from millipoint coordinates.
+    pub fn from_mpt(x: crate::mpt::Mpt, y: crate::mpt::Mpt) -> Self {
+        Self {
+            x: x.to_pt(),
+            y: y.to_pt(),
+        }
+    }
+
+    /// Convert to millipoint coordinates.
+    pub fn to_mpt(&self) -> (crate::mpt::Mpt, crate::mpt::Mpt) {
+        (crate::mpt::Mpt::from_pt(self.x), crate::mpt::Mpt::from_pt(self.y))
+    }
+}
+
+/// Physical rectangle with f32 coordinates (backward compatible).
+///
+/// For new code, consider using `Mpt` coordinates for deterministic layout.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct PhysicalRect {
     pub x: f32,
@@ -22,6 +43,31 @@ impl PhysicalRect {
             width,
             height,
         }
+    }
+
+    /// Create a PhysicalRect from millipoint coordinates.
+    pub fn from_mpt(
+        x: crate::mpt::Mpt,
+        y: crate::mpt::Mpt,
+        width: crate::mpt::Mpt,
+        height: crate::mpt::Mpt,
+    ) -> Self {
+        Self {
+            x: x.to_pt(),
+            y: y.to_pt(),
+            width: width.to_pt(),
+            height: height.to_pt(),
+        }
+    }
+
+    /// Convert to millipoint coordinates (x, y, width, height).
+    pub fn to_mpt(&self) -> (crate::mpt::Mpt, crate::mpt::Mpt, crate::mpt::Mpt, crate::mpt::Mpt) {
+        (
+            crate::mpt::Mpt::from_pt(self.x),
+            crate::mpt::Mpt::from_pt(self.y),
+            crate::mpt::Mpt::from_pt(self.width),
+            crate::mpt::Mpt::from_pt(self.height),
+        )
     }
 
     pub fn contains_point(&self, pt: PhysicalPoint) -> bool {

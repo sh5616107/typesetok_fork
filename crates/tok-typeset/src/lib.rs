@@ -45,6 +45,14 @@ pub mod shaper;
 pub mod solver;
 pub mod template_synthesizer;
 
+// Phase 1 spec alignment modules
+pub mod config;
+pub mod diagnostic;
+pub mod layout_result;
+pub mod mpt;
+pub mod page_policy;
+pub mod waiver;
+
 pub use bidi::{BidiEngine, BidiRun};
 pub use co_pagination::{
     calculate_typographic_split, ActiveSyncResult, ActiveSynchronizer, AnchorCascadeEngine,
@@ -111,3 +119,16 @@ pub use solver::{
     PageGeometryConfig, RectVariables, SolvedColumnAllocation, SolvedRect, SolverError,
 };
 pub use template_synthesizer::TemplateSynthesizer;
+
+// Phase 1 spec alignment exports
+pub use config::{
+    engine_version, SearchLimits, TypesetConfig, WeightConfig, ENGINE_VERSION,
+};
+pub use diagnostic::{Diagnostic, DiagnosticCode, DiagnosticSeverity};
+pub use layout_result::{
+    BalanceInfo, ColumnLayout, DecisionTrace, LayoutMetrics, LayoutResult, LayoutStatus,
+    PageLayout,
+};
+pub use mpt::Mpt;
+pub use page_policy::{PagePolicy, PolicyConfig, PolicyResolver};
+pub use waiver::{WaiverRecord, WaiverRegistry, WaiverScope};
