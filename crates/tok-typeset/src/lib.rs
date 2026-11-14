@@ -53,6 +53,9 @@ pub mod mpt;
 pub mod page_policy;
 pub mod waiver;
 
+// Phase 2 spec alignment modules
+pub mod balance_measurement;
+
 pub use bidi::{BidiEngine, BidiRun};
 pub use co_pagination::{
     calculate_typographic_split, ActiveSyncResult, ActiveSynchronizer, AnchorCascadeEngine,
@@ -132,3 +135,6 @@ pub use layout_result::{
 pub use mpt::Mpt;
 pub use page_policy::{PagePolicy, PolicyConfig, PolicyResolver};
 pub use waiver::{WaiverRecord, WaiverRegistry, WaiverScope};
+
+// Phase 2 spec alignment exports
+pub use balance_measurement::{BalanceError, BottomDelta, ColumnMeasurement};

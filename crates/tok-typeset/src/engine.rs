@@ -3147,6 +3147,113 @@ impl TypesettingEngine {
             self.clone(),
         )
     }
+
+    // ============================================================================
+    // Phase 2: Balance Measurement & Policy Assignment
+    // ============================================================================
+
+    /// Assign page policy based on page characteristics per specification section 7.5.
+    ///
+    /// Policy logic:
+    /// - LastPage if `is_last` and content is sparse
+    /// - ChapterOpening if `page_index == 0` and section has Body type
+    /// - ForcedBreak if `has_forced_break`
+    /// - Otherwise BodyFull
+    pub fn assign_page_policy(
+        &self,
+        page_index: usize,
+        section: &tok_core::model::SectionNode,
+        is_last: bool,
+        has_forced_break: bool,
+    ) -> crate::page_policy::PagePolicy {
+        use crate::page_policy::PagePolicy;
+
+        if has_forced_break {
+            return PagePolicy::ForcedBreak;
+        }
+
+        if page_index == 0 {
+            // First page of section - check if it's a special opening
+            if section.page_style.contains("chapter") || section.page_style.contains("Chapter") {
+                return PagePolicy::ChapterOpening;
+            }
+            if section.page_style.contains("part") || section.page_style.contains("Part") {
+                return PagePolicy::PartOpening;
+            }
+            if section.page_style.contains("title") || section.page_style.contains("Title") {
+                return PagePolicy::TitlePage;
+            }
+        }
+
+        if is_last {
+            // Last page - balance typically not applicable
+            return PagePolicy::LastPage;
+        }
+
+        // Default: regular full body page
+        PagePolicy::BodyFull
+    }
+
+    /// Populate balance info for a page based on column measurements and policy.
+    ///
+    /// Creates ColumnMeasurement from each ColumnLayout, calculates BottomDelta,
+    /// and builds BalanceInfo with applicable, target_delta, actual_delta, and balanced fields.
+    pub fn populate_balance_info(
+        &self,
+        columns: &[crate::layout_result::ColumnLayout],
+        policy: &crate::page_policy::PagePolicy,
+        baseline_step: crate::mpt::Mpt,
+    ) -> crate::layout_result::BalanceInfo {
+        use crate::balance_measurement::{BottomDelta, ColumnMeasurement};
+        use crate::page_policy::PolicyResolver;
+
+        let resolver = PolicyResolver::new();
+        let policy_config = resolver.resolve(policy.clone());
+
+        // If balance is not applicable, return early
+        if !policy_config.balance_applicable {
+            return crate::layout_result::BalanceInfo::not_applicable(&policy_config.policy_id);
+        }
+
+        // Create measurements from columns
+        let measurements: Vec<ColumnMeasurement> = columns
+            .iter()
+            .map(|col| {
+                let mut meas = ColumnMeasurement::new(col.column_index);
+                if !col.is_empty {
+                    if let Some(y) = col.last_baseline_y {
+                        meas = meas.with_last_baseline_y(y);
+                    }
+                }
+                meas.is_empty = col.is_empty;
+                meas
+            })
+            .collect();
+
+        // Calculate bottom delta
+        let delta_result = BottomDelta::from_columns(&measurements, baseline_step);
+
+        match delta_result {
+            Ok(delta) => {
+                let balanced = policy_config.is_satisfied(delta.delta);
+                crate::layout_result::BalanceInfo::applicable(
+                    policy_config.target_delta,
+                    &policy_config.policy_id,
+                )
+                .with_actual_delta(delta.delta, delta.delta_lines)
+                .with_balanced(balanced)
+            }
+            Err(_) => {
+                // Error calculating delta (e.g., all columns empty)
+                // Return applicable but not balanced
+                crate::layout_result::BalanceInfo::applicable(
+                    policy_config.target_delta,
+                    &policy_config.policy_id,
+                )
+                .with_balanced(false)
+            }
+        }
+    }
 }
 
 #[cfg(test)]
