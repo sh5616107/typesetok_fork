@@ -12,10 +12,10 @@ use serde::{Deserialize, Serialize};
 pub enum WaiverScope {
     /// Waiver applies to a single page.
     Page,
-    
+
     /// Waiver applies to an entire section.
     Section,
-    
+
     /// Waiver applies to the entire document.
     Document,
 }
@@ -28,27 +28,27 @@ pub enum WaiverScope {
 pub struct WaiverRecord {
     /// Unique identifier for this waiver.
     pub waiver_id: String,
-    
+
     /// The diagnostic code being waived.
     pub diagnostic_code: DiagnosticCode,
-    
+
     /// Zero-based page index (if scope is Page).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub page_index: Option<usize>,
-    
+
     /// Anchor IDs related to this waiver.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub anchor_ids: Vec<String>,
-    
+
     /// User or system that approved this waiver.
     pub approved_by: String,
-    
+
     /// Timestamp when the waiver was approved (ISO-8601 format).
     pub approved_at: String,
-    
+
     /// Human-readable reason for the waiver.
     pub reason: String,
-    
+
     /// Scope of the waiver.
     pub scope: WaiverScope,
 }

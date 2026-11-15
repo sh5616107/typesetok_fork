@@ -55,29 +55,29 @@ pub enum DiagnosticSeverity {
 pub struct Diagnostic {
     /// The diagnostic code.
     pub code: DiagnosticCode,
-    
+
     /// Severity level.
     pub severity: DiagnosticSeverity,
-    
+
     /// Human-readable description of the issue.
     pub message: String,
-    
+
     /// Zero-based page index where the issue occurred (if applicable).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub page_index: Option<usize>,
-    
+
     /// Section identifier where the issue occurred (if applicable).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub section_id: Option<String>,
-    
+
     /// Anchor IDs related to this diagnostic (e.g., cross-reference targets).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub anchor_ids: Vec<String>,
-    
+
     /// Strategies attempted to resolve the issue.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub attempted_strategies: Vec<String>,
-    
+
     /// Suggested actions to resolve the issue.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub suggested_actions: Vec<String>,
@@ -85,7 +85,11 @@ pub struct Diagnostic {
 
 impl Diagnostic {
     /// Create a new diagnostic with the given code and message.
-    pub fn new(code: DiagnosticCode, severity: DiagnosticSeverity, message: impl Into<String>) -> Self {
+    pub fn new(
+        code: DiagnosticCode,
+        severity: DiagnosticSeverity,
+        message: impl Into<String>,
+    ) -> Self {
         Self {
             code,
             severity,
@@ -178,7 +182,7 @@ mod tests {
         let code = DiagnosticCode::FontGlyphMissing;
         let json = serde_json::to_string(&code).unwrap();
         assert_eq!(json, r#""FONT_GLYPH_MISSING""#);
-        
+
         let deserialized: DiagnosticCode = serde_json::from_str(&json).unwrap();
         assert_eq!(deserialized, code);
     }
@@ -199,7 +203,7 @@ mod tests {
             DiagnosticCode::ConfigInvalid,
             DiagnosticCode::XrefTargetMissing,
         ];
-        
+
         assert_eq!(codes.len(), 11, "Expected 11 mandatory diagnostic codes");
     }
 

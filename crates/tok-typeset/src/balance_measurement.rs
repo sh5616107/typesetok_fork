@@ -16,15 +16,15 @@ pub enum BalanceError {
     /// All columns are empty, cannot measure balance.
     #[error("All columns are empty")]
     AllColumnsEmpty,
-    
+
     /// Baseline step is zero or negative, cannot calculate delta in lines.
     #[error("Baseline step must be positive, got {0}")]
     InvalidBaselineStep(Mpt),
-    
+
     /// No measurements provided.
     #[error("No measurements provided")]
     NoMeasurements,
-    
+
     /// Invalid measurement data.
     #[error("Invalid measurement: {0}")]
     InvalidMeasurement(String),
@@ -35,13 +35,13 @@ pub enum BalanceError {
 pub struct ColumnMeasurement {
     /// Column index within the page (0-based).
     pub column_index: usize,
-    
+
     /// Y-coordinate of the last baseline in this column (None if empty).
     pub last_baseline_y: Option<Mpt>,
-    
+
     /// Number of lines in this column.
     pub line_count: usize,
-    
+
     /// Whether this column is empty.
     pub is_empty: bool,
 }
@@ -81,16 +81,16 @@ impl ColumnMeasurement {
 pub struct BottomDelta {
     /// Minimum bottom position among non-empty columns.
     pub min_bottom: Mpt,
-    
+
     /// Maximum bottom position among non-empty columns.
     pub max_bottom: Mpt,
-    
+
     /// Absolute difference: |max_bottom - min_bottom|.
     pub delta: Mpt,
-    
+
     /// Delta expressed in line units (for diagnostics).
     pub delta_lines: f32,
-    
+
     /// Number of empty columns that were excluded.
     pub empty_column_count: usize,
 }
@@ -282,18 +282,13 @@ mod tests {
 
     #[test]
     fn test_zero_baseline_step_error() {
-        let measurements = vec![
-            ColumnMeasurement::new(0)
-                .with_last_baseline_y(Mpt::from_pt(100.0))
-                .with_line_count(10),
-        ];
+        let measurements = vec![ColumnMeasurement::new(0)
+            .with_last_baseline_y(Mpt::from_pt(100.0))
+            .with_line_count(10)];
 
         let result = BottomDelta::from_columns(&measurements, Mpt::ZERO);
 
-        assert_eq!(
-            result,
-            Err(BalanceError::InvalidBaselineStep(Mpt::ZERO))
-        );
+        assert_eq!(result, Err(BalanceError::InvalidBaselineStep(Mpt::ZERO)));
     }
 
     #[test]

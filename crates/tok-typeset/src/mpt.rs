@@ -170,7 +170,7 @@ mod tests {
         let mpt = Mpt::from_pt(42.25);
         let json = serde_json::to_string(&mpt).unwrap();
         assert_eq!(json, "42250");
-        
+
         let deserialized: Mpt = serde_json::from_str(&json).unwrap();
         assert_eq!(deserialized, mpt);
     }

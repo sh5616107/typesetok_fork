@@ -13,10 +13,10 @@ use serde::{Deserialize, Serialize};
 pub enum LayoutStatus {
     /// Layout is valid and meets all requirements.
     Valid,
-    
+
     /// Layout is valid but has warnings that should be reviewed.
     ValidWithWarnings,
-    
+
     /// Layout is invalid due to unsatisfiable constraints or errors.
     Invalid,
 }
@@ -26,21 +26,21 @@ pub enum LayoutStatus {
 pub struct BalanceInfo {
     /// Whether balance is applicable for this page.
     pub applicable: bool,
-    
+
     /// Target bottom delta (0 for balanced pages).
     pub target_delta: Mpt,
-    
+
     /// Actual bottom delta achieved (None if not computed).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub actual_delta: Option<Mpt>,
-    
+
     /// Actual delta expressed in lines (for diagnostics).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub actual_delta_lines: Option<f32>,
-    
+
     /// Whether the balance requirement was satisfied.
     pub balanced: bool,
-    
+
     /// Policy ID that determined this page's balance requirements.
     pub policy_id: String,
 }
@@ -89,14 +89,14 @@ impl BalanceInfo {
 pub struct ColumnLayout {
     /// Column index within the page (0-based).
     pub column_index: usize,
-    
+
     /// Y-coordinate of the last baseline in this column (in mpt).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub last_baseline_y: Option<Mpt>,
-    
+
     /// Height of the column (in mpt).
     pub height: Mpt,
-    
+
     /// Whether this column is empty.
     pub is_empty: bool,
 }
@@ -106,16 +106,16 @@ pub struct ColumnLayout {
 pub struct PageLayout {
     /// Zero-based page index.
     pub page_index: usize,
-    
+
     /// Balance information for this page.
     pub balance: BalanceInfo,
-    
+
     /// Layout information for each column on this page.
     pub columns: Vec<ColumnLayout>,
-    
+
     /// Page dimensions (x, y, width, height in mpt).
     pub dimensions: (Mpt, Mpt, Mpt, Mpt),
-    
+
     /// Whether this is a blank page (e.g., verso forcing page).
     #[serde(default)]
     pub is_blank: bool,
@@ -126,19 +126,19 @@ pub struct PageLayout {
 pub struct LayoutMetrics {
     /// Total number of pages.
     pub page_count: usize,
-    
+
     /// Number of pages where balance is applicable.
     pub balanced_page_count: usize,
-    
+
     /// Number of pages where balance was satisfied.
     pub satisfied_balance_count: usize,
-    
+
     /// Total number of diagnostics.
     pub diagnostic_count: usize,
-    
+
     /// Number of error-level diagnostics.
     pub error_count: usize,
-    
+
     /// Number of warning-level diagnostics.
     pub warning_count: usize,
 }
@@ -177,10 +177,10 @@ impl LayoutMetrics {
 pub struct DecisionTrace {
     /// Stage or component that made the decision.
     pub stage: String,
-    
+
     /// Description of the decision.
     pub decision: String,
-    
+
     /// Context information (page, column, etc.).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub context: Vec<(String, String)>,
@@ -191,29 +191,29 @@ pub struct DecisionTrace {
 pub struct LayoutResult {
     /// Engine version that produced this result.
     pub engine_version: String,
-    
+
     /// Hash of the configuration used.
     pub config_hash: String,
-    
+
     /// Hash of the document content.
     pub document_hash: String,
-    
+
     /// Overall status of the layout.
     pub status: LayoutStatus,
-    
+
     /// Layout information for each page.
     pub pages: Vec<PageLayout>,
-    
+
     /// Diagnostics generated during layout.
     pub diagnostics: Vec<Diagnostic>,
-    
+
     /// Overall layout metrics.
     pub metrics: LayoutMetrics,
-    
+
     /// Optional decision trace for debugging.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub trace: Option<Vec<DecisionTrace>>,
-    
+
     /// Optional waiver records.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub waivers: Option<Vec<crate::waiver::WaiverRecord>>,
@@ -298,14 +298,24 @@ mod tests {
                 page_index: 0,
                 balance: BalanceInfo::applicable(Mpt::ZERO, "body_full").with_balanced(true),
                 columns: vec![],
-                dimensions: (Mpt::ZERO, Mpt::ZERO, Mpt::from_pt(595.0), Mpt::from_pt(842.0)),
+                dimensions: (
+                    Mpt::ZERO,
+                    Mpt::ZERO,
+                    Mpt::from_pt(595.0),
+                    Mpt::from_pt(842.0),
+                ),
                 is_blank: false,
             },
             PageLayout {
                 page_index: 1,
                 balance: BalanceInfo::not_applicable("last_page"),
                 columns: vec![],
-                dimensions: (Mpt::ZERO, Mpt::ZERO, Mpt::from_pt(595.0), Mpt::from_pt(842.0)),
+                dimensions: (
+                    Mpt::ZERO,
+                    Mpt::ZERO,
+                    Mpt::from_pt(595.0),
+                    Mpt::from_pt(842.0),
+                ),
                 is_blank: false,
             },
         ];
@@ -371,7 +381,12 @@ mod tests {
                 height: Mpt::from_pt(200.0),
                 is_empty: false,
             }],
-            dimensions: (Mpt::ZERO, Mpt::ZERO, Mpt::from_pt(595.0), Mpt::from_pt(842.0)),
+            dimensions: (
+                Mpt::ZERO,
+                Mpt::ZERO,
+                Mpt::from_pt(595.0),
+                Mpt::from_pt(842.0),
+            ),
             is_blank: false,
         }];
 

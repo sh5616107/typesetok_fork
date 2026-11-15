@@ -11,13 +11,13 @@ use std::hash::{Hash, Hasher};
 pub struct SearchLimits {
     /// Maximum number of balance candidates to evaluate per page.
     pub max_candidates: usize,
-    
+
     /// Maximum number of pages to look ahead for optimization.
     pub max_pages: usize,
-    
+
     /// Maximum number of pages to look back for balance adjustments.
     pub lookback: usize,
-    
+
     /// Maximum number of dynamic programming states.
     pub max_dp_states: usize,
 }
@@ -41,19 +41,19 @@ impl Default for SearchLimits {
 pub struct WeightConfig {
     /// Weight for badness of line breaks (word spacing deviation).
     pub line_badness_weight: f32,
-    
+
     /// Weight for badness of page breaks.
     pub page_badness_weight: f32,
-    
+
     /// Weight for paragraph spacing adjustments.
     pub paragraph_spacing_weight: f32,
-    
+
     /// Weight for bottom delta (column balance deviation).
     pub bottom_delta_weight: f32,
-    
+
     /// Weight for widow/orphan penalties.
     pub widow_orphan_weight: f32,
-    
+
     /// Configuration version for tracking changes.
     pub version: String,
 }
@@ -76,13 +76,13 @@ impl Default for WeightConfig {
 pub struct TypesetConfig {
     /// Search limits for algorithms.
     pub search_limits: SearchLimits,
-    
+
     /// Soft scoring weights.
     pub weights: WeightConfig,
-    
+
     /// Word spacing range (min, max) as fractions of ideal spacing.
     pub word_spacing_range: (f32, f32),
-    
+
     /// Paragraph spacing range (min, max) as fractions of ideal spacing.
     pub paragraph_spacing_range: (f32, f32),
 }
@@ -104,11 +104,11 @@ impl TypesetConfig {
     /// Used to detect configuration changes that affect layout results.
     pub fn compute_hash(&self) -> String {
         let mut hasher = DefaultHasher::new();
-        
+
         // Hash all relevant configuration fields
         let json = serde_json::to_string(self).unwrap_or_default();
         json.hash(&mut hasher);
-        
+
         format!("{:x}", hasher.finish())
     }
 }
@@ -145,17 +145,17 @@ mod tests {
     fn test_config_hash_deterministic() {
         let config1 = TypesetConfig::default();
         let config2 = TypesetConfig::default();
-        
+
         assert_eq!(config1.compute_hash(), config2.compute_hash());
     }
 
     #[test]
     fn test_config_hash_changes() {
         let config1 = TypesetConfig::default();
-        
+
         let mut config2 = TypesetConfig::default();
         config2.word_spacing_range = (0.80, 1.50);
-        
+
         assert_ne!(config1.compute_hash(), config2.compute_hash());
     }
 
@@ -172,7 +172,7 @@ mod tests {
         let config = TypesetConfig::default();
         let json = serde_json::to_string(&config).unwrap();
         let deserialized: TypesetConfig = serde_json::from_str(&json).unwrap();
-        
+
         assert_eq!(config, deserialized);
     }
 }

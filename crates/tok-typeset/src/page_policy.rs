@@ -14,22 +14,22 @@ use serde::{Deserialize, Serialize};
 pub enum PagePolicy {
     /// Regular full body page: `targetDelta = 0`, no empty columns allowed.
     BodyFull,
-    
+
     /// Partial body page: `targetDelta = 0` if balance applicable, configurable empty columns.
     BodyPartial,
-    
+
     /// Last page of document: balance not applicable by default, empty columns allowed.
     LastPage,
-    
+
     /// Chapter opening page: balance rules defined by master page.
     ChapterOpening,
-    
+
     /// Part opening page: balance not applicable by default.
     PartOpening,
-    
+
     /// Title page: balance not applicable.
     TitlePage,
-    
+
     /// Forced break: inherits balance rules from the page's original policy.
     ForcedBreak,
 }
@@ -41,19 +41,19 @@ pub enum PagePolicy {
 pub struct PolicyConfig {
     /// Unique identifier for this policy instance.
     pub policy_id: String,
-    
+
     /// The policy type.
     pub policy: PagePolicy,
-    
+
     /// Target bottom delta (0 for balanced pages).
     pub target_delta: Mpt,
-    
+
     /// Whether balance is applicable for this policy.
     pub balance_applicable: bool,
-    
+
     /// Whether empty columns are allowed.
     pub empty_column_allowed: bool,
-    
+
     /// Maximum acceptable deviation from target (for success determination).
     pub success_threshold: Mpt,
 }
@@ -150,7 +150,7 @@ impl PolicyConfig {
         if !self.balance_applicable {
             return true;
         }
-        
+
         let deviation = (actual_delta - self.target_delta).raw().abs();
         deviation <= self.success_threshold.raw().abs()
     }
@@ -227,7 +227,7 @@ mod tests {
     fn test_forced_break_inheritance() {
         let base = PolicyConfig::body_full();
         let forced = PolicyConfig::forced_break(&base);
-        
+
         assert_eq!(forced.policy, PagePolicy::ForcedBreak);
         assert_eq!(forced.target_delta, base.target_delta);
         assert_eq!(forced.balance_applicable, base.balance_applicable);
@@ -236,14 +236,14 @@ mod tests {
     #[test]
     fn test_policy_satisfaction() {
         let config = PolicyConfig::body_full();
-        
+
         // Exact match
         assert!(config.is_satisfied(Mpt::ZERO));
-        
+
         // Within threshold (0.5pt = 500mpt)
         assert!(config.is_satisfied(Mpt::from_raw(400)));
         assert!(config.is_satisfied(Mpt::from_raw(-400)));
-        
+
         // Outside threshold
         assert!(!config.is_satisfied(Mpt::from_raw(600)));
         assert!(!config.is_satisfied(Mpt::from_raw(-600)));
@@ -253,7 +253,7 @@ mod tests {
     fn test_policy_not_applicable() {
         let config = PolicyConfig::last_page();
         assert!(!config.balance_applicable);
-        
+
         // Any delta is acceptable when not applicable
         assert!(config.is_satisfied(Mpt::from_pt(100.0)));
         assert!(config.is_satisfied(Mpt::from_pt(-100.0)));
@@ -262,11 +262,11 @@ mod tests {
     #[test]
     fn test_policy_resolver() {
         let resolver = PolicyResolver::new();
-        
+
         let body_full = resolver.resolve(PagePolicy::BodyFull);
         assert_eq!(body_full.policy, PagePolicy::BodyFull);
         assert!(body_full.balance_applicable);
-        
+
         let last_page = resolver.resolve(PagePolicy::LastPage);
         assert_eq!(last_page.policy, PagePolicy::LastPage);
         assert!(!last_page.balance_applicable);
@@ -283,7 +283,7 @@ mod tests {
             PagePolicy::TitlePage,
             PagePolicy::ForcedBreak,
         ];
-        
+
         assert_eq!(policies.len(), 7, "Expected 7 page policy types");
     }
 }

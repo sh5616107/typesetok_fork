@@ -236,10 +236,7 @@ fn test_complete_layout_result_with_all_features() {
 
     // Verify structure
     assert_eq!(result.pages.len(), 2);
-    assert_eq!(
-        result.status,
-        tok_typeset::LayoutStatus::ValidWithWarnings
-    );
+    assert_eq!(result.status, tok_typeset::LayoutStatus::ValidWithWarnings);
     assert_eq!(result.metrics.page_count, 2);
     assert_eq!(result.metrics.balanced_page_count, 1);
     assert_eq!(result.metrics.satisfied_balance_count, 1);

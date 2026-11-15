@@ -20,7 +20,10 @@ impl PhysicalPoint {
 
     /// Convert to millipoint coordinates.
     pub fn to_mpt(&self) -> (crate::mpt::Mpt, crate::mpt::Mpt) {
-        (crate::mpt::Mpt::from_pt(self.x), crate::mpt::Mpt::from_pt(self.y))
+        (
+            crate::mpt::Mpt::from_pt(self.x),
+            crate::mpt::Mpt::from_pt(self.y),
+        )
     }
 }
 
@@ -61,7 +64,14 @@ impl PhysicalRect {
     }
 
     /// Convert to millipoint coordinates (x, y, width, height).
-    pub fn to_mpt(&self) -> (crate::mpt::Mpt, crate::mpt::Mpt, crate::mpt::Mpt, crate::mpt::Mpt) {
+    pub fn to_mpt(
+        &self,
+    ) -> (
+        crate::mpt::Mpt,
+        crate::mpt::Mpt,
+        crate::mpt::Mpt,
+        crate::mpt::Mpt,
+    ) {
         (
             crate::mpt::Mpt::from_pt(self.x),
             crate::mpt::Mpt::from_pt(self.y),
