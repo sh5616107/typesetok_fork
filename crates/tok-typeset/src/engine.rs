@@ -985,6 +985,12 @@ impl TypesettingEngine {
 
     /// Internal implementation of document typesetting.
     pub fn typeset_document_internal(&self, doc: &DocumentRoot) -> Vec<PageLayoutBox> {
+        // Phase 5: Check for continuous flow sections first
+        let has_continuous_flow = doc.sections.iter().any(|s| s.is_continuous_flow());
+        if has_continuous_flow {
+            return self.typeset_document_continuous_flow(doc);
+        }
+        
         let has_multi_flow = doc.sections.iter().any(|s| s.flows.len() > 1);
         if has_multi_flow {
             return self.typeset_document_multi_flow(doc);
@@ -1803,6 +1809,167 @@ impl TypesettingEngine {
         }
 
         updated_refs
+    }
+
+    /// Typesets a document with continuous flow columns using SnakeColumnBreaker.
+    /// Phase 5: Routes sections marked with column_count > 1 to snake column breaker.
+    pub fn typeset_document_continuous_flow(&self, doc: &DocumentRoot) -> Vec<PageLayoutBox> {
+        use crate::snake_column_breaker::{DistributionMode, SnakeColumnBreaker, SnakeColumnConfig};
+        
+        let mut all_pages = Vec::new();
+        let mut page_number = 1;
+        
+        for section in &doc.sections {
+            if !section.is_continuous_flow() {
+                // Single column or parallel flow - use traditional layout
+                // For now, fall back to simple single-column layout
+                let main_flow = match section.main_flow() {
+                    Some(f) => f,
+                    None => continue,
+                };
+                
+                let side = if page_number % 2 == 1 { SpreadSide::Recto } else { SpreadSide::Verso };
+                let content = self.content_rect_for_side(side);
+                
+                // Layout all paragraphs in the section
+                let mut all_lines = Vec::new();
+                for para in &main_flow.paragraphs {
+                    let lines = self.typeset_paragraph(para, content.width, 11.0, 14.5);
+                    all_lines.extend(lines);
+                }
+                
+                // Simple pagination: break into pages by height
+                let mut current_page_lines = Vec::new();
+                let mut current_y = 0.0;
+                
+                for line in all_lines {
+                    if current_y + line.height > content.height && !current_page_lines.is_empty() {
+                        // Create page
+                        let page = self.new_page(
+                            page_number,
+                            content.width,
+                            content.height,
+                            current_page_lines,
+                            None,
+                            &main_flow.id.0,
+                        );
+                        all_pages.push(page);
+                        page_number += 1;
+                        current_page_lines = Vec::new();
+                        current_y = 0.0;
+                    }
+                    current_y += line.height;
+                    current_page_lines.push(line);
+                }
+                
+                if !current_page_lines.is_empty() {
+                    let page = self.new_page(
+                        page_number,
+                        content.width,
+                        content.height,
+                        current_page_lines,
+                        None,
+                        &main_flow.id.0,
+                    );
+                    all_pages.push(page);
+                    page_number += 1;
+                }
+                
+                continue;
+            }
+            
+            // Continuous flow section
+            let column_count = section.column_count.unwrap_or(1);
+            let distribution_mode = match section.distribution_mode.as_deref() {
+                Some("Sequential") => DistributionMode::Sequential,
+                Some("Balanced") | None => DistributionMode::Balanced,
+                _ => DistributionMode::Balanced,
+            };
+            
+            let main_flow = match section.main_flow() {
+                Some(f) => f,
+                None => continue,
+            };
+            
+            let side = if page_number % 2 == 1 { SpreadSide::Recto } else { SpreadSide::Verso };
+            let content = self.content_rect_for_side(side);
+            let available_height = crate::mpt::Mpt::from_pt(content.height);
+            
+            // Calculate column width with gutter
+            const GUTTER_PT: f32 = 12.0;
+            let total_gutter = GUTTER_PT * (column_count - 1) as f32;
+            let column_width = (content.width - total_gutter) / column_count as f32;
+            
+            // Layout all paragraphs for this section
+            let mut all_lines = Vec::new();
+            for para in &main_flow.paragraphs {
+                let lines = self.typeset_paragraph(para, column_width, 11.0, 14.5);
+                all_lines.extend(lines);
+            }
+            
+            if all_lines.is_empty() {
+                continue;
+            }
+            
+            // Configure snake column breaker
+            let config = SnakeColumnConfig::new(column_count, available_height, column_width)
+                .with_distribution_mode(distribution_mode);
+            
+            let breaker = SnakeColumnBreaker::new(config);
+            
+            // Break lines into columns
+            match breaker.break_into_columns(all_lines) {
+                Ok(result) => {
+                    // Create page with columns
+                    let mut frames = Vec::new();
+                    for (col_idx, column_lines) in result.columns.iter().enumerate() {
+                        let x_offset = content.x + col_idx as f32 * (column_width + GUTTER_PT);
+                        
+                        let frame = TextFrameBox {
+                            frame_id: format!("frame_{}_col{}", page_number, col_idx),
+                            flow_id: main_flow.id.0.clone(),
+                            rect: PhysicalRect::new(x_offset, content.y, column_width, content.height),
+                            lines: column_lines.clone(),
+                        };
+                        frames.push(frame);
+                    }
+                    
+                    let page = PageLayoutBox {
+                        page_index: page_number - 1,
+                        page_number_gematria: GematriaEngine::to_hebrew_numeral(page_number),
+                        dimensions: PhysicalRect::new(0.0, 0.0, self.config.page_width_pt, self.config.page_height_pt),
+                        frames,
+                        break_token: None,
+                        is_blank: false,
+                    };
+                    
+                    all_pages.push(page);
+                    page_number += 1;
+                }
+                Err(e) => {
+                    eprintln!("Snake column breaker error: {}", e);
+                    // Fall back to empty page
+                    let page = self.new_page(
+                        page_number,
+                        content.width,
+                        content.height,
+                        Vec::new(),
+                        None,
+                        &main_flow.id.0,
+                    );
+                    all_pages.push(page);
+                    page_number += 1;
+                }
+            }
+        }
+        
+        if all_pages.is_empty() {
+            // Return empty page
+            let content = self.content_rect_for_side(SpreadSide::Recto);
+            all_pages.push(self.new_page(1, content.width, content.height, Vec::new(), None, "main"));
+        }
+        
+        all_pages
     }
 
     /// Typesets a multi-flow document (Talmud / Mikraot / commentaries) using MultiFlowSolver.

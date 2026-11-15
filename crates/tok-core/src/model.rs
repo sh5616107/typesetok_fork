@@ -304,6 +304,19 @@ pub struct SectionNode {
     /// Detailed page break mode for this section.
     #[serde(default)]
     pub page_break_mode: crate::overrides::PageBreakMode,
+    
+    // Phase 5: Continuous Flow Support
+    /// Explicit column count for continuous flow layouts (e.g., 2 for two-column magazine style).
+    /// When set, indicates this section uses continuous flow rather than parallel flows.
+    /// Defaults to None (parallel flows or single column).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub column_count: Option<usize>,
+    
+    /// Distribution mode for continuous flow columns.
+    /// Only relevant when column_count > 1 in continuous flow mode.
+    /// Defaults to Balanced if not specified.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub distribution_mode: Option<String>,
 }
 
 impl SectionNode {
@@ -320,6 +333,8 @@ impl SectionNode {
             anchors: crate::multi_flow_anchor::MultiFlowAnchorMap::default(),
             start_on_odd_page: false,
             page_break_mode: crate::overrides::PageBreakMode::Auto,
+            column_count: None,
+            distribution_mode: None,
         }
     }
 
@@ -393,6 +408,38 @@ impl SectionNode {
 
     pub fn has_flow(&self, id: &str) -> bool {
         self.flows.iter().any(|f| f.id.0 == id)
+    }
+    
+    /// Returns true if this section uses continuous flow column layout.
+    /// Continuous flow is indicated by having an explicit column_count > 1
+    /// and only a single main flow (not parallel flows like Gemara+Rashi).
+    pub fn is_continuous_flow(&self) -> bool {
+        self.column_count.is_some_and(|count| count > 1) && self.flows.len() == 1
+    }
+    
+    /// Returns true if this section requires balance checking.
+    /// Balance is applicable for continuous flow with Balanced distribution mode,
+    /// or for parallel flows with balance policy.
+    pub fn requires_balance(&self) -> bool {
+        if self.is_continuous_flow() {
+            // Continuous flow: check distribution mode
+            self.distribution_mode.as_deref() == Some("Balanced") || self.distribution_mode.is_none()
+        } else {
+            // Parallel flows: balance is determined by page policy at pagination time
+            false
+        }
+    }
+    
+    /// Builder method to set column count for continuous flow.
+    pub fn with_column_count(mut self, count: usize) -> Self {
+        self.column_count = Some(count);
+        self
+    }
+    
+    /// Builder method to set distribution mode.
+    pub fn with_distribution_mode(mut self, mode: impl Into<String>) -> Self {
+        self.distribution_mode = Some(mode.into());
+        self
     }
 }
 
