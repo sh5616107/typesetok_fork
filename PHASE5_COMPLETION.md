@@ -160,11 +160,13 @@ Added:
 
 ## Known Limitations
 
-1. **Multi-page continuous flow:** Current implementation creates one page per snake column result. Multi-page continuous flow across section boundaries needs additional pagination logic (deferred to future work).
+1. **Mixing multi-flow and continuous flow:** Documents that mix multi-flow sections (e.g., Talmud with Gemara+Rashi) and continuous flow sections (e.g., magazine columns) in the same document are not currently supported. This is because MultiFlowSolver operates on the entire document while SnakeColumnBreaker works per-section. If such a document is processed, multi-flow sections will be skipped with a warning message. **Workaround:** Keep multi-flow documents and continuous flow documents separate, or refactor to per-section routing (future work).
 
-2. **Performance test:** Test 15 (100-page document <10s) is marked `#[ignore]` for CI. Should be run manually for performance validation.
+2. **Multi-page continuous flow:** Current implementation creates one page per snake column result. Multi-page continuous flow across section boundaries needs additional pagination logic (deferred to future work).
 
-3. **Balance verification:** Tests verify that balanced mode is enabled, but don't inspect the actual `LayoutResult` for delta=0. This requires the LayoutResult integration from Phase 1, which may need additional wiring.
+3. **Performance test:** Test 15 (100-page document <10s) is marked `#[ignore]` for CI. Should be run manually for performance validation.
+
+4. **Balance verification:** Tests verify that balanced mode is enabled, but don't inspect the actual `LayoutResult` for delta=0. This requires the LayoutResult integration from Phase 1, which may need additional wiring.
 
 ## Next Steps (Post-Phase 5)
 

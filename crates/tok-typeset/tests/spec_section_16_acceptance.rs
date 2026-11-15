@@ -276,10 +276,10 @@ fn test_11_empty_section() {
     // No paragraphs added
     
     let engine = TypesettingEngine::new(TypesettingEngineConfig::default());
-    let result = engine.typeset_document(&doc);
+    let _result = engine.typeset_document(&doc);
     
-    // Should handle gracefully - may return empty vec or single empty page
-    assert!(result.len() >= 0, "Empty section should not crash");
+    // Should handle gracefully without crashing
+    // Result may be empty vec or contain an empty page
 }
 
 #[test]
