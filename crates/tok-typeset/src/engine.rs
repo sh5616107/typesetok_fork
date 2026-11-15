@@ -985,13 +985,23 @@ impl TypesettingEngine {
 
     /// Internal implementation of document typesetting.
     pub fn typeset_document_internal(&self, doc: &DocumentRoot) -> Vec<PageLayoutBox> {
-        // Phase 5: Check for continuous flow sections first
+        // Phase 5: Check for continuous flow sections and multi-flow sections
         let has_continuous_flow = doc.sections.iter().any(|s| s.is_continuous_flow());
+        let has_multi_flow = doc.sections.iter().any(|s| s.flows.len() > 1);
+        
+        // VALIDATION: Detect mixed documents and fail loudly
+        if has_continuous_flow && has_multi_flow {
+            panic!(
+                "Documents cannot mix continuous flow (magazine-style columns) and multi-flow \
+                (Talmud-style Gemara+Rashi) sections. This would result in silent data loss. \
+                Use separate documents or refactor to per-section routing."
+            );
+        }
+        
         if has_continuous_flow {
             return self.typeset_document_continuous_flow(doc);
         }
         
-        let has_multi_flow = doc.sections.iter().any(|s| s.flows.len() > 1);
         if has_multi_flow {
             return self.typeset_document_multi_flow(doc);
         }
@@ -1821,33 +1831,9 @@ impl TypesettingEngine {
         
         for section in &doc.sections {
             if !section.is_continuous_flow() {
-                // Check if this is a multi-flow section (e.g., Talmud with Gemara + Rashi)
-                if section.flows.len() > 1 {
-                    // LIMITATION: Mixing multi-flow (Talmud) and continuous flow (magazine) 
-                    // sections in the same document is not currently supported.
-                    // Multi-flow sections require MultiFlowSolver which operates on the entire
-                    // document, while continuous flow uses SnakeColumnBreaker per-section.
-                    eprintln!(
-                        "Warning: Section with {} flows detected in continuous flow document. \
-                        Mixing multi-flow (Talmud) and continuous flow (magazine columns) sections \
-                        is not supported. This section will be skipped.",
-                        section.flows.len()
-                    );
-                    // Create a diagnostic page indicating the limitation
-                    let side = if page_number % 2 == 1 { SpreadSide::Recto } else { SpreadSide::Verso };
-                    let content = self.content_rect_for_side(side);
-                    let diagnostic_page = self.new_page(
-                        page_number,
-                        content.width,
-                        content.height,
-                        Vec::new(),
-                        None,
-                        "diagnostic",
-                    );
-                    all_pages.push(diagnostic_page);
-                    page_number += 1;
-                    continue;
-                }
+                // Multi-flow sections are already validated upfront in typeset_document_internal
+                // and would have routed to typeset_document_multi_flow instead.
+                // Here we only handle single-flow, single-column sections.
                 
                 // Single column or parallel flow - use traditional layout
                 // For now, fall back to simple single-column layout

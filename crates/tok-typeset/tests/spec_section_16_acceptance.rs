@@ -400,6 +400,35 @@ fn test_16_no_memory_leaks_incremental() {
     // This test verifies no crashes occur during repeated runs
 }
 
+#[test]
+#[should_panic(expected = "Documents cannot mix continuous flow")]
+fn test_17_mixed_document_rejected() {
+    // Test 17: Mixed continuous flow and multi-flow sections are rejected upfront
+    // This test validates that we fail loudly rather than silently dropping content
+    use tok_core::model::{Flow, FlowId, FlowType};
+    
+    let mut doc = DocumentRoot::new("Mixed Document Test");
+    
+    // Section 1: Multi-flow (Talmud-style with Gemara + Rashi)
+    let gemara_flow = Flow::new(FlowId::from("gemara"), FlowType::Main);
+    let rashi_flow = Flow::new(FlowId::from("rashi"), FlowType::CommentA);
+    let section1 = SectionNode::new("Section 1: Talmud", "default")
+        .with_flows(vec![gemara_flow, rashi_flow]);
+    
+    // Section 2: Continuous flow (magazine-style 2 columns)
+    let mut section2 = SectionNode::new("Section 2: Magazine", "default");
+    section2.column_count = Some(2);
+    section2.distribution_mode = Some("Balanced".to_string());
+    add_paragraph(&mut section2, "Magazine content");
+    
+    doc.sections = vec![section1, section2];
+    
+    let engine = TypesettingEngine::new(TypesettingEngineConfig::default());
+    
+    // Should panic with clear error message instead of silently dropping content
+    let _result = engine.typeset_document(&doc);
+}
+
 // ============================================================================
 // Helper Functions
 // ============================================================================
