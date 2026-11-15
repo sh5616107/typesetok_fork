@@ -56,6 +56,11 @@ pub mod waiver;
 // Phase 2 spec alignment modules
 pub mod balance_measurement;
 
+// Phase 3 spec alignment modules
+pub mod balance_solver;
+pub mod candidate;
+pub mod scoring;
+
 pub use bidi::{BidiEngine, BidiRun};
 pub use co_pagination::{
     calculate_typographic_split, ActiveSyncResult, ActiveSynchronizer, AnchorCascadeEngine,
@@ -124,13 +129,10 @@ pub use solver::{
 pub use template_synthesizer::TemplateSynthesizer;
 
 // Phase 1 spec alignment exports
-pub use config::{
-    engine_version, SearchLimits, TypesetConfig, WeightConfig, ENGINE_VERSION,
-};
+pub use config::{engine_version, SearchLimits, TypesetConfig, WeightConfig, ENGINE_VERSION};
 pub use diagnostic::{Diagnostic, DiagnosticCode, DiagnosticSeverity};
 pub use layout_result::{
-    BalanceInfo, ColumnLayout, DecisionTrace, LayoutMetrics, LayoutResult, LayoutStatus,
-    PageLayout,
+    BalanceInfo, ColumnLayout, DecisionTrace, LayoutMetrics, LayoutResult, LayoutStatus, PageLayout,
 };
 pub use mpt::Mpt;
 pub use page_policy::{PagePolicy, PolicyConfig, PolicyResolver};
@@ -138,3 +140,13 @@ pub use waiver::{WaiverRecord, WaiverRegistry, WaiverScope};
 
 // Phase 2 spec alignment exports
 pub use balance_measurement::{BalanceError, BottomDelta, ColumnMeasurement};
+
+// Phase 3 spec alignment exports
+pub use balance_solver::{
+    BalanceResult, BalanceSearchLimits, BalanceSolver, BalanceSolverError, LineData, SolverConfig,
+};
+pub use candidate::{BalanceCandidate, ColumnContent, Stage};
+pub use scoring::{
+    calculate_line_quality, calculate_para_spacing_deviation, calculate_word_spacing_quality,
+    count_widow_orphan_violations, select_best_candidate,
+};
