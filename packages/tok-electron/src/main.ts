@@ -846,6 +846,39 @@ handle('tok:typeset-document', async (_, payload: { document?: unknown; inputPat
   }
 });
 
+// Phase 6: Column Layout IPC Handlers
+handle('tok:set-section-column-layout', async (_, payload: {
+  sectionId: string;
+  columnCount?: number;
+  distributionMode?: 'Sequential' | 'Balanced';
+}) => {
+  logger.info(`[IPC] set-section-column-layout: section=${payload.sectionId}, cols=${payload.columnCount}, dist=${payload.distributionMode}`);
+  
+  // This is a UI-to-backend bridge. The actual document update happens in the renderer,
+  // and this handler is for future Rust-side validation or processing.
+  // For now, we just acknowledge the request.
+  return {
+    success: true,
+    sectionId: payload.sectionId,
+    columnCount: payload.columnCount,
+    distributionMode: payload.distributionMode || 'Balanced'
+  };
+});
+
+handle('tok:get-section-column-info', async (_, payload: { sectionId: string }) => {
+  logger.info(`[IPC] get-section-column-info: section=${payload.sectionId}`);
+  
+  // This would query the backend for current section layout info.
+  // For Phase 6, this is primarily handled in the renderer from the document JSON.
+  // This handler is a placeholder for future backend integration.
+  return {
+    sectionId: payload.sectionId,
+    columnCount: 1,
+    distributionMode: 'Balanced',
+    flowMode: 'Parallel'
+  };
+});
+
 // Logger Handlers
 // What the user picked in the Windows installer (language and projects folder), read once from the registry.
 // The language is requested synchronously by the preload on first run, because the renderer needs it before it starts.

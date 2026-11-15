@@ -1,0 +1,130 @@
+{
+  "id": "doc-article-mixed",
+  "metadata": {
+    "title": "מאמר עם פריסה משולבת",
+    "author": "",
+    "progression": "Rtl",
+    "primary_language": "he",
+    "schema_version": "1.0.0",
+    "document_settings": {
+      "default_page_style": "Standard"
+    }
+  },
+  "paragraph_styles": [
+    {
+      "id": "style-intro",
+      "name": "מבוא",
+      "font_family": "Frank Ruhl Libre",
+      "font_weight": 400,
+      "font_size_pt": 12.0,
+      "line_height_pt": 18.0,
+      "space_before_pt": 0.0,
+      "space_after_pt": 6.0,
+      "first_line_indent_pt": 0.0,
+      "alignment": "Justified",
+      "ahalterm_stretch": "AutoVariable",
+      "color": { "DeviceCmyk": { "c": 0, "m": 0, "y": 0, "k": 1 } },
+      "keep_with_next": false,
+      "orphan_control": 2,
+      "widow_control": 2
+    },
+    {
+      "id": "style-body",
+      "name": "גוף",
+      "font_family": "Frank Ruhl Libre",
+      "font_weight": 400,
+      "font_size_pt": 11.0,
+      "line_height_pt": 16.0,
+      "space_before_pt": 0.0,
+      "space_after_pt": 4.0,
+      "first_line_indent_pt": 0.0,
+      "alignment": "Justified",
+      "ahalterm_stretch": "AutoVariable",
+      "color": { "DeviceCmyk": { "c": 0, "m": 0, "y": 0, "k": 1 } },
+      "keep_with_next": false,
+      "orphan_control": 2,
+      "widow_control": 2
+    },
+    {
+      "id": "style-title",
+      "name": "כותרת ראשית",
+      "font_family": "Frank Ruhl Libre",
+      "font_weight": 700,
+      "font_size_pt": 24.0,
+      "line_height_pt": 32.0,
+      "space_before_pt": 0.0,
+      "space_after_pt": 16.0,
+      "first_line_indent_pt": 0.0,
+      "alignment": "Center",
+      "ahalterm_stretch": "None",
+      "color": { "DeviceCmyk": { "c": 0, "m": 0, "y": 0, "k": 1 } },
+      "keep_with_next": true,
+      "orphan_control": 2,
+      "widow_control": 2
+    }
+  ],
+  "character_styles": [],
+  "sections": [
+    {
+      "id": "sec-intro",
+      "name": "מבוא",
+      "page_style": "Standard",
+      "flows": [
+        {
+          "id": "main",
+          "flow_type": "Main",
+          "paragraphs": [
+            {
+              "id": "p1",
+              "order_key": "a0",
+              "style_id": "style-title",
+              "runs": [
+                {
+                  "text": "כותרת המאמר",
+                  "format": {}
+                }
+              ]
+            },
+            {
+              "id": "p2",
+              "order_key": "a1",
+              "style_id": "style-intro",
+              "runs": [
+                {
+                  "text": "זהו המבוא למאמר, המוצג בעמודה רחבה אחת לפתיחה דרמטית.",
+                  "format": {}
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sec-body",
+      "name": "גוף המאמר",
+      "page_style": "Standard",
+      "column_count": 2,
+      "distribution_mode": "Balanced",
+      "flows": [
+        {
+          "id": "main",
+          "flow_type": "Main",
+          "paragraphs": [
+            {
+              "id": "p3",
+              "order_key": "a0",
+              "style_id": "style-body",
+              "runs": [
+                {
+                  "text": "גוף המאמר מוצג בשתי עמודות מאוזנות. פריסה משולבת זו משלבת את היתרונות של עמודה רחבה למבוא עם קריאות משופרת של עמודות צרות יותר בהמשך.",
+                  "format": {}
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
