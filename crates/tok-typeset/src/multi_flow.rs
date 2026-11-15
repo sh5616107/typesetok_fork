@@ -46,6 +46,8 @@ pub struct FlowGeometrySpec {
     pub min_width_pt: f32,
     pub max_width_pt: f32,
     pub target_height_pt: f32,
+    /// Flow mode: Parallel (default) or Continuous (snake columns).
+    pub flow_mode: Option<crate::snake_column_breaker::FlowMode>,
 }
 
 impl FlowGeometrySpec {
@@ -64,6 +66,7 @@ impl FlowGeometrySpec {
             min_width_pt: 50.0,
             max_width_pt: 1000.0,
             target_height_pt: 500.0,
+            flow_mode: None,
         }
     }
 
@@ -74,6 +77,11 @@ impl FlowGeometrySpec {
 
     pub fn with_width_ratio(mut self, ratio: f32) -> Self {
         self.width_ratio = Some(ratio);
+        self
+    }
+
+    pub fn with_flow_mode(mut self, mode: crate::snake_column_breaker::FlowMode) -> Self {
+        self.flow_mode = Some(mode);
         self
     }
 }
@@ -142,6 +150,17 @@ impl MultiFlowSolver {
     pub const DEFAULT_GUTTER_PT: f32 = 12.0;
     /// Minimum gap between Gemara bottom and the free space that triggers the L-shape.
     pub const L_SHAPE_MIN_GAP_PT: f32 = 30.0;
+
+    /// Check if flows use continuous (snake) column mode.
+    /// 
+    /// This is a Phase 4 helper for callers to detect when they should
+    /// use SnakeColumnBreaker instead of the parallel flow solver.
+    #[allow(dead_code)]
+    fn is_continuous_flow(flows: &[FlowGeometrySpec]) -> bool {
+        flows
+            .iter()
+            .any(|f| matches!(f.flow_mode, Some(crate::snake_column_breaker::FlowMode::Continuous)))
+    }
 
     fn margins(margin_inner_pt: f32, margin_outer_pt: f32, side: SpreadSide) -> (f32, f32) {
         match side {
@@ -424,6 +443,10 @@ impl MultiFlowSolver {
 
     /// Solves layout allocation across a spread for an arbitrary number of flows (1, 2, 3, 4, N)
     /// using constraint specifications, roles, and width ratios.
+    ///
+    /// Note: For Phase 4 continuous flow (snake columns), callers should detect
+    /// `FlowMode::Continuous` in the flow specs and delegate to `SnakeColumnBreaker`
+    /// instead of calling this method. This method handles traditional parallel flows only.
     pub fn solve_generic_spread(
         page_width_pt: f32,
         page_height_pt: f32,

@@ -61,6 +61,9 @@ pub mod balance_solver;
 pub mod candidate;
 pub mod scoring;
 
+// Phase 4 spec alignment modules
+pub mod snake_column_breaker;
+
 pub use bidi::{BidiEngine, BidiRun};
 pub use co_pagination::{
     calculate_typographic_split, ActiveSyncResult, ActiveSynchronizer, AnchorCascadeEngine,
@@ -149,4 +152,10 @@ pub use candidate::{BalanceCandidate, ColumnContent, Stage};
 pub use scoring::{
     calculate_line_quality, calculate_para_spacing_deviation, calculate_word_spacing_quality,
     count_widow_orphan_violations, select_best_candidate,
+};
+
+// Phase 4 spec alignment exports
+pub use snake_column_breaker::{
+    DistributionMode, FlowMode, SectionColumnSpec, SnakeColumnBreaker, SnakeColumnConfig,
+    SnakeColumnError, SnakeColumnResult,
 };
