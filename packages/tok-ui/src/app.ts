@@ -18,6 +18,8 @@ import { TextStatsModal } from './components/TextStatsModal';
 import { ImportTemplateModal } from './components/ImportTemplateModal';
 import { CustomFlowModal, CustomFlowData } from './components/CustomFlowModal';
 import { TextCleanupModal } from './components/TextCleanupModal';
+import { SectionSettingsDialog } from './components/SectionSettingsDialog';
+import { ColumnToolbar } from './components/ColumnToolbar';
 import { CleanupOptions, cleanupParagraphs } from './engine/textCleanup';
 import { PluginEngine } from './plugins/PluginEngine';
 import { StoryEditor, StoryParagraph } from 'tok-story-editor';
@@ -150,6 +152,8 @@ export class TypesetOkApp {
   private importTemplateModalInstance?: ImportTemplateModal;
   private customFlowModalInstance?: CustomFlowModal;
   private textCleanupModalInstance?: TextCleanupModal;
+  private sectionSettingsDialogInstance?: SectionSettingsDialog;
+  private columnToolbarInstance?: ColumnToolbar;
   private pendingImportResult: { result: ImportResult; filePath?: string } | null = null;
   private isChangingActiveDocumentTemplate = false;
   private isCreatingNewDocument = false;
@@ -1249,6 +1253,17 @@ export class TypesetOkApp {
     return this.exportDialogInstance;
   }
 
+  private get sectionSettingsDialog(): SectionSettingsDialog {
+    if (!this.sectionSettingsDialogInstance) {
+      this.sectionSettingsDialogInstance = new SectionSettingsDialog({
+        onClose: () => this.sectionSettingsDialogInstance?.hide(),
+        onSave: (settings) => this.handleSectionSettingsUpdate(settings)
+      });
+      this.root.appendChild(this.sectionSettingsDialogInstance.element);
+    }
+    return this.sectionSettingsDialogInstance;
+  }
+
   /** Opens the export dialog for the current document. */
   public openExportDialog(): void {
     const spread = groupIntoSpreads(this.pages.length).find((sp) => sp.includes(this.activePageIndex)) ?? [];
@@ -1261,6 +1276,17 @@ export class TypesetOkApp {
       }),
       preflightStatus: this.statusBar.getPreflightStatus()
     });
+  }
+
+  /** Opens the section settings dialog for column layout configuration. */
+  public openSectionSettingsDialog(): void {
+    // TODO: Get current section settings from documentState
+    const currentSettings = {
+      columnCount: 1,
+      distributionMode: 'Balanced',
+      policy: 'Balance'
+    };
+    this.sectionSettingsDialog.show(currentSettings);
   }
 
   /** Runs the export with the options chosen in the dialog. */
@@ -1291,6 +1317,16 @@ export class TypesetOkApp {
     } else {
       this.showToast(t('toastExportSimulated'));
     }
+  }
+
+  /** Updates section settings with column layout configuration from dialog. */
+  private handleSectionSettingsUpdate(settings: any): void {
+    console.log('[TOK] Section settings updated:', settings);
+    // TODO: Update documentState with new column layout settings
+    // For Phase 6, this is a placeholder - full integration requires
+    // mapping settings to section configuration and re-typesetting
+    this.showToast('הגדרות המקטע עודכנו');
+    this.scheduleRepaginate();
   }
 
   /** Undo/redo in the story editor. */
@@ -1970,6 +2006,15 @@ export class TypesetOkApp {
         title: t('structureChangeTemplate'),
         subtitle: 'החלפת פריסת העמודים ותזרימי הספר',
         action: () => this.promptChangeDocumentTemplate()
+      },
+      {
+        id: 'cmd-section-settings',
+        icon: 'settings',
+        category: t('cmdCatPages'),
+        title: t('sectionSettingsTitle'),
+        subtitle: t('sectionSettingsSubtitle'),
+        shortcut: 'Ctrl+Shift+S',
+        action: () => this.openSectionSettingsDialog()
       },
       {
         id: 'cmd-close-document',
