@@ -1,0 +1,89 @@
+{
+  "id": "doc-magazine-3col",
+  "metadata": {
+    "title": "מגזין תלת-טורי",
+    "author": "",
+    "progression": "Rtl",
+    "primary_language": "he",
+    "schema_version": "1.0.0",
+    "document_settings": {
+      "default_page_style": "Standard"
+    }
+  },
+  "paragraph_styles": [
+    {
+      "id": "style-body",
+      "name": "גוף",
+      "font_family": "Frank Ruhl Libre",
+      "font_weight": 400,
+      "font_size_pt": 10.0,
+      "line_height_pt": 14.0,
+      "space_before_pt": 0.0,
+      "space_after_pt": 3.0,
+      "first_line_indent_pt": 0.0,
+      "alignment": "Justified",
+      "ahalterm_stretch": "AutoVariable",
+      "color": { "DeviceCmyk": { "c": 0, "m": 0, "y": 0, "k": 1 } },
+      "keep_with_next": false,
+      "orphan_control": 2,
+      "widow_control": 2
+    },
+    {
+      "id": "style-heading",
+      "name": "כותרת",
+      "font_family": "Frank Ruhl Libre",
+      "font_weight": 700,
+      "font_size_pt": 16.0,
+      "line_height_pt": 22.0,
+      "space_before_pt": 10.0,
+      "space_after_pt": 6.0,
+      "first_line_indent_pt": 0.0,
+      "alignment": "Center",
+      "ahalterm_stretch": "None",
+      "color": { "DeviceCmyk": { "c": 0, "m": 0, "y": 0, "k": 1 } },
+      "keep_with_next": true,
+      "orphan_control": 2,
+      "widow_control": 2
+    }
+  ],
+  "character_styles": [],
+  "sections": [
+    {
+      "id": "sec-main",
+      "name": "גוף המאמר",
+      "page_style": "Standard",
+      "column_count": 3,
+      "distribution_mode": "Balanced",
+      "flows": [
+        {
+          "id": "main",
+          "flow_type": "Main",
+          "paragraphs": [
+            {
+              "id": "p1",
+              "order_key": "a0",
+              "style_id": "style-heading",
+              "runs": [
+                {
+                  "text": "כותרת העיתון",
+                  "format": {}
+                }
+              ]
+            },
+            {
+              "id": "p2",
+              "order_key": "a1",
+              "style_id": "style-body",
+              "runs": [
+                {
+                  "text": "פריסה תלת-טורית מתאימה לעיתונים ועלונים עם תוכן רב. הטקסט זורם בצורה רציפה בין שלוש העמודות, והן מאוזנות אוטומטית.",
+                  "format": {}
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

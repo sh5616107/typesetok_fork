@@ -608,6 +608,27 @@ export const strings: Translations = {
   exportCheckAria: { he: 'בדיקה לפני ייצוא', en: 'Pre-export check' },
   exportBrowse: { he: 'עיון...', en: 'Browse...' },
   exportChooseLocation: { he: 'בחר מיקום שמירה', en: 'Choose export location' },
+
+  // Section Settings Dialog (Phase 6)
+  sectionSettingsTitle: { he: 'הגדרות סקציה', en: 'Section Settings' },
+  sectionName: { he: 'שם הסקציה', en: 'Section Name' },
+  sectionPageStyle: { he: 'סגנון דף', en: 'Page Style' },
+  columnLayout: { he: 'פריסת עמודות', en: 'Column Layout' },
+  columnCount: { he: 'מספר עמודות', en: 'Column Count' },
+  distributionMode: { he: 'אופן חלוקה', en: 'Distribution Mode' },
+  balanced: { he: 'מאוזן (גבהים שווים)', en: 'Balanced (equal heights)' },
+  sequential: { he: 'רציף (זרם טבעי)', en: 'Sequential (natural flow)' },
+  distributionHint: { he: 'מאוזן: כל עמודה באותו גובה. רציף: מילוי עמודה אחר עמודה.', en: 'Balanced: all columns same height. Sequential: fill column by column.' },
+  flowModeSingle: { he: 'עמודה בודדת (לא רלוונטי עבור טורים מקבילים)', en: 'Single column (no parallel flows)' },
+  flowModeContinuous: { he: 'זרם רציף (סגנון מגזין) - טקסט זורם בין העמודות', en: 'Continuous flow (magazine style) - text flows between columns' },
+  
+  // Column Toolbar (Phase 6)
+  columnToolbarTitle: { he: 'פריסת עמודות', en: 'Column Layout' },
+  oneColumn: { he: '1 עמודה', en: '1 Column' },
+  twoColumns: { he: '2 עמודות', en: '2 Columns' },
+  threeColumns: { he: '3 עמודות', en: '3 Columns' },
+  toggleBalance: { he: 'איזון אוטומטי', en: 'Auto Balance' },
+  applyToSection: { he: 'החל על הסקציה', en: 'Apply to Section' },
 };
 
 export function directionOf(lang: Language): 'rtl' | 'ltr' {
