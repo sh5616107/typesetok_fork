@@ -123,14 +123,15 @@ fn test_04_dynamic_column_changes() {
 }
 
 #[test]
-fn test_05_mixed_parallel_and_continuous() {
-    // Test 5: Mixed layouts - parallel flows in one section, continuous in another
+fn test_05_mixed_single_column_and_continuous() {
+    // Test 5: Mixed layouts - single-column in one section, continuous flow in another
+    // Note: Continuous flow takes routing priority, so section 1 uses fallback single-column layout
     let mut doc = DocumentRoot::new("Mixed Layouts");
     
-    // Section 1: Parallel flows (Gemara + Rashi) - NOT continuous
-    doc.sections[0].column_count = None;  // Parallel determined by flow count
+    // Section 1: Single-column section (not continuous flow)
+    doc.sections[0].column_count = None;  // Single column, single flow
     doc.sections[0].layout_kind = Some("talmud".to_string());
-    add_paragraph(&mut doc.sections[0], "Gemara text in parallel layout with Rashi.");
+    add_paragraph(&mut doc.sections[0], "Single-column text in first section.");
     
     // Section 2: Continuous flow (magazine style)
     let mut sec2 = SectionNode::new("Article", "default");
@@ -144,9 +145,9 @@ fn test_05_mixed_parallel_and_continuous() {
     let engine = TypesettingEngine::new(TypesettingEngineConfig::default());
     let result = engine.typeset_document(&doc);
     
-    assert!(!result.is_empty(), "Mixed parallel and continuous layouts should work");
-    assert!(!doc.sections[0].is_continuous_flow(), "Talmud layout is parallel");
-    assert!(doc.sections[1].is_continuous_flow(), "Article is continuous");
+    assert!(!result.is_empty(), "Mixed single-column and continuous layouts should work");
+    assert!(!doc.sections[0].is_continuous_flow(), "Section 1 is single-column");
+    assert!(doc.sections[1].is_continuous_flow(), "Section 2 is continuous flow");
 }
 
 #[test]
